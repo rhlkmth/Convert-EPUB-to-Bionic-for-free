@@ -74,10 +74,15 @@ def main():
             tmp_file.write(book_path.read())
             tmp_file_path = tmp_file.name
 
-        if 'converted_data' not in st.session_state:
-            with st.spinner("Processing the file..."):
-                st.session_state.converted_data, st.session_state.converted_name = convert_book(tmp_file_path, original_name)
-            st.success("Conversion completed!")
+        # Clear the previous converted data and name from the session state
+        if 'converted_data' in st.session_state:
+            del st.session_state.converted_data
+        if 'converted_name' in st.session_state:
+            del st.session_state.converted_name
+
+        with st.spinner("Processing the file..."):
+            st.session_state.converted_data, st.session_state.converted_name = convert_book(tmp_file_path, original_name)
+        st.success("Conversion completed!")
         
         converted_data = st.session_state.converted_data
         converted_name = st.session_state.converted_name

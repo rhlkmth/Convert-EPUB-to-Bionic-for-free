@@ -9,7 +9,8 @@ import bs4
 
 def _convert_file_path(path):
     path_obj = Path(path)
-    new_name = "converted-" + path_obj.stem + ".epub"
+    original_name = path_obj.stem
+    new_name = f"Bionic_{original_name}.epub"  # Change this line
     new_path = path_obj.with_name(new_name)
     return str(new_path)
 

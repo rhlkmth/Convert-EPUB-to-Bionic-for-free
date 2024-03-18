@@ -1,6 +1,5 @@
 
-[](https://files.catbox.moe/jnu20k.png)
-
+![Untitled design](https://github.com/rhlkmth/Convert-EPUB-to-Bionic-for-free/assets/16479173/3b3d56d4-2004-4e0f-8ec7-389f13e0c795)
 
 ### EPUB to Bionic Converter
 

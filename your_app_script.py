@@ -65,12 +65,14 @@ def main():
             tmp_file.write(book_path.read())
             tmp_file_path = tmp_file.name
 
-        with st.spinner("Processing the file..."):
-            converted_path = convert_book(tmp_file_path, original_name)
+        if 'converted_path' not in st.session_state:
+            with st.spinner("Processing the file..."):
+                st.session_state.converted_path = convert_book(tmp_file_path, original_name)
+            st.success("Conversion completed!")
         
+        converted_path = st.session_state.converted_path
         with open(converted_path, "rb") as f:
             bytes_data = f.read()
-        st.success("Conversion completed!")
         st.download_button(
             label="Download Converted Book",
             data=bytes_data,

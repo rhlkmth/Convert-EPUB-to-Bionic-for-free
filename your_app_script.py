@@ -1,12 +1,16 @@
 import streamlit as st
 import tempfile
-from bs4 import BeautifulSoup
 import re
 from ebooklib import epub
 from tqdm import tqdm
 from pathlib import Path
-import bs4
 import subprocess
+
+# Install beautifulsoup4 package
+subprocess.run(["pip", "install", "beautifulsoup4"])
+
+from bs4 import BeautifulSoup
+import bs4
 
 def _convert_file_path(path, original_name):
     path_obj = Path(path)
@@ -56,9 +60,6 @@ def convert_book(book_path, original_name):
     epub.write_epub(converted_path, source)
     return converted_path
 
-def upgrade_pip():
-    subprocess.run(["/home/adminuser/venv/bin/python", "-m", "pip", "install", "--upgrade", "pip"])
-
 def main():
     st.title("Convert your EPUB to Bionic")
     book_path = st.file_uploader("Upload a book file", type=["epub"])
@@ -83,10 +84,6 @@ def main():
             file_name=Path(converted_path).name,
             mime="application/epub+zip"
         )
-
-    if st.button("Upgrade pip"):
-        upgrade_pip()
-        st.success("Pip upgraded successfully!")
 
 if __name__ == "__main__":
     main()

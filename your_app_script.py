@@ -1,15 +1,16 @@
 import streamlit as st
 import tempfile
 from bs4 import BeautifulSoup
-import bs4
 import re
 from ebooklib import epub
 from tqdm import tqdm
 from pathlib import Path
+import bs4
+import subprocess
 
-def _convert_file_path(path):
+def _convert_file_path(path, original_name):
     path_obj = Path(path)
-    new_name = "converted-" + path_obj.stem + ".epub"  # Change this line
+    new_name = f"Bionic_{original_name}"
     new_path = path_obj.with_name(new_name)
     return str(new_path)
 
@@ -17,7 +18,7 @@ def convert_to_bionic_str(soup: BeautifulSoup, s: str):
     new_parent = soup.new_tag("span")
     words = re.split(r'.,;:!?-|\s', s)
     for word in words:
-        if len(word) >= 4:  # Increase frequency by bolding words with length >= 4
+        if len(word) >= 4:
             mid = (len(word) // 2) + 1
             first_half, second_half = word[:mid], word[mid:]
             b_tag = soup.new_tag("b")
@@ -32,7 +33,7 @@ def convert_to_bionic(content: str):
     soup = BeautifulSoup(content, 'html.parser')
     for e in soup.descendants:
         if isinstance(e, bs4.element.Tag):
-            if e.name == "p":  # Process all paragraphs
+            if e.name == "p":
                 children = list(e.children)
                 for child in children:
                     if isinstance(child, bs4.element.NavigableString):
@@ -40,26 +41,52 @@ def convert_to_bionic(content: str):
                             child.replace_with(convert_to_bionic_str(soup, child.text))
     return str(soup).encode()
 
-def convert_book(book_path):
+def convert_book(book_path, original_name):
     source = epub.read_epub(book_path)
-    for item in tqdm(source.items):
+    total_items = len(list(source.items))
+    progress_bar = st.progress(0)
+    
+    for i, item in enumerate(source.items):
         if item.media_type == "application/xhtml+xml":
             content = item.content.decode('utf-8')
             item.content = convert_to_bionic(content)
-    epub.write_epub(_convert_file_path(book_path), source)
+        progress_bar.progress((i + 1) / total_items)
+    
+    converted_path = _convert_file_path(book_path, original_name)
+    epub.write_epub(converted_path, source)
+    return converted_path
+
+def upgrade_pip():
+    subprocess.run(["/home/adminuser/venv/bin/python", "-m", "pip", "install", "--upgrade", "pip"])
 
 def main():
-    st.title("Book Conversion")
+    st.title("Convert your EPUB to Bionic")
     book_path = st.file_uploader("Upload a book file", type=["epub"])
 
     if book_path is not None:
+        original_name = book_path.name
         with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
             tmp_file.write(book_path.read())
             tmp_file_path = tmp_file.name
 
-        convert_book(tmp_file_path)
-        converted_path = _convert_file_path(tmp_file_path)
-        st.success(f"Book converted successfully! Downloaded {converted_path}")
+        if 'converted_path' not in st.session_state:
+            with st.spinner("Processing the file..."):
+                st.session_state.converted_path = convert_book(tmp_file_path, original_name)
+            st.success("Conversion completed!")
+        
+        converted_path = st.session_state.converted_path
+        with open(converted_path, "rb") as f:
+            bytes_data = f.read()
+        st.download_button(
+            label="Download Converted Book",
+            data=bytes_data,
+            file_name=Path(converted_path).name,
+            mime="application/epub+zip"
+        )
+
+    if st.button("Upgrade pip"):
+        upgrade_pip()
+        st.success("Pip upgraded successfully!")
 
 if __name__ == "__main__":
     main()

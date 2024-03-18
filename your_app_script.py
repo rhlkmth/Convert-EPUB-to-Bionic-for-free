@@ -7,10 +7,9 @@ from tqdm import tqdm
 from pathlib import Path
 import bs4
 
-def _convert_file_path(path):
+def _convert_file_path(path, original_name):
     path_obj = Path(path)
-    original_name = path_obj.stem
-    new_name = f"Bionic_{original_name}.epub"  # Change this line
+    new_name = f"Bionic_{original_name}"  # Change this line
     new_path = path_obj.with_name(new_name)
     return str(new_path)
 
@@ -41,13 +40,13 @@ def convert_to_bionic(content: str):
                             child.replace_with(convert_to_bionic_str(soup, child.text))
     return str(soup).encode()
 
-def convert_book(book_path):
+def convert_book(book_path, original_name):
     source = epub.read_epub(book_path)
     for item in tqdm(source.items):
         if item.media_type == "application/xhtml+xml":
             content = item.content.decode('utf-8')
             item.content = convert_to_bionic(content)
-    converted_path = _convert_file_path(book_path)
+    converted_path = _convert_file_path(book_path, original_name)
     epub.write_epub(converted_path, source)
     return converted_path
 
@@ -56,11 +55,12 @@ def main():
     book_path = st.file_uploader("Upload a book file", type=["epub"])
 
     if book_path is not None:
+        original_name = book_path.name  # Get the original file name
         with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
             tmp_file.write(book_path.read())
             tmp_file_path = tmp_file.name
 
-        converted_path = convert_book(tmp_file_path)
+        converted_path = convert_book(tmp_file_path, original_name)
         with open(converted_path, "rb") as f:
             bytes_data = f.read()
         st.download_button(

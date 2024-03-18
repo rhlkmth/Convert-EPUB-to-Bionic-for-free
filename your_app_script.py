@@ -1,4 +1,3 @@
-
 import streamlit as st
 import tempfile
 from bs4 import BeautifulSoup
@@ -10,7 +9,7 @@ import bs4
 
 def _convert_file_path(path, original_name):
     path_obj = Path(path)
-    new_name = f"Bionic_{original_name}"  # Change this line
+    new_name = f"Bionic_{original_name}"
     new_path = path_obj.with_name(new_name)
     return str(new_path)
 
@@ -43,10 +42,15 @@ def convert_to_bionic(content: str):
 
 def convert_book(book_path, original_name):
     source = epub.read_epub(book_path)
-    for item in tqdm(source.items):
+    total_items = len(list(source.items))
+    progress_bar = st.progress(0)
+    
+    for i, item in enumerate(source.items):
         if item.media_type == "application/xhtml+xml":
             content = item.content.decode('utf-8')
             item.content = convert_to_bionic(content)
+        progress_bar.progress((i + 1) / total_items)
+    
     converted_path = _convert_file_path(book_path, original_name)
     epub.write_epub(converted_path, source)
     return converted_path
@@ -56,14 +60,17 @@ def main():
     book_path = st.file_uploader("Upload a book file", type=["epub"])
 
     if book_path is not None:
-        original_name = book_path.name  # Get the original file name
+        original_name = book_path.name
         with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
             tmp_file.write(book_path.read())
             tmp_file_path = tmp_file.name
 
-        converted_path = convert_book(tmp_file_path, original_name)
+        with st.spinner("Processing the file..."):
+            converted_path = convert_book(tmp_file_path, original_name)
+        
         with open(converted_path, "rb") as f:
             bytes_data = f.read()
+        st.success("Conversion completed!")
         st.download_button(
             label="Download Converted Book",
             data=bytes_data,

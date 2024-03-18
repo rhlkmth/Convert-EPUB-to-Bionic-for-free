@@ -22,7 +22,7 @@ def convert_to_bionic_str(soup: BeautifulSoup, s: str):
     new_parent = soup.new_tag("span")
     words = re.split(r'.,;:!?-|\s', s)
     for word in words:
-        if len(word) >= 4:
+        if len(word) >= 2:
             mid = (len(word) // 2) + 1
             first_half, second_half = word[:mid], word[mid:]
             b_tag = soup.new_tag("b")

@@ -9,35 +9,31 @@ import bs4
 
 def _convert_file_path(path, original_name):
     path_obj = Path(path)
-    new_name = f"Bionic_{original_name}"  # Change this line
+    new_name = f"Bionic_{original_name}"
     new_path = path_obj.with_name(new_name)
     return str(new_path)
 
 def convert_to_bionic_str(soup: BeautifulSoup, s: str):
     new_parent = soup.new_tag("span")
-    words = re.split(r'.,;:!?-|\s', s)
+    words = re.split(r'[.,;:!?-\s]', s)
     for word in words:
         if len(word) >= 4:
-            mid = (len(word) // 2) + 1
+            mid = len(word) // 2
             first_half, second_half = word[:mid], word[mid:]
             b_tag = soup.new_tag("b")
-            b_tag.append(soup.new_string(first_half))
+            b_tag.append(first_half)
             new_parent.append(b_tag)
-            new_parent.append(soup.new_string(second_half + " "))
+            new_parent.append(second_half + " ")
         else:
-            new_parent.append(soup.new_string(word + " "))
+            new_parent.append(word + " ")
     return new_parent
 
 def convert_to_bionic(content: str):
     soup = BeautifulSoup(content, 'html.parser')
-    for e in soup.descendants:
-        if isinstance(e, bs4.element.Tag):
-            if e.name == "p":
-                children = list(e.children)
-                for child in children:
-                    if isinstance(child, bs4.element.NavigableString):
-                        if len(child.text.strip()):
-                            child.replace_with(convert_to_bionic_str(soup, child.text))
+    for p in soup.find_all('p'):
+        for child in p.children:
+            if isinstance(child, bs4.element.NavigableString) and child.strip():
+                child.replace_with(convert_to_bionic_str(soup, str(child)))
     return str(soup).encode()
 
 def convert_book(book_path, original_name):
@@ -55,7 +51,7 @@ def main():
     book_path = st.file_uploader("Upload a book file", type=["epub"])
 
     if book_path is not None:
-        original_name = book_path.name  # Get the original file name
+        original_name = book_path.name
         with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
             tmp_file.write(book_path.read())
             tmp_file_path = tmp_file.name

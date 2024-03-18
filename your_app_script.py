@@ -31,11 +31,11 @@ def convert_to_bionic_str(soup: BeautifulSoup, s: str):
 def convert_to_bionic(content: str):
     soup = BeautifulSoup(content, 'html.parser')
     for e in soup.descendants:
-        if isinstance(e, bs4.element.Tag):
+        if isinstance(e, BeautifulSoup.element.Tag):
             if e.name == "p":  # Process all paragraphs
                 children = list(e.children)
                 for child in children:
-                    if isinstance(child, bs4.element.NavigableString):
+                    if isinstance(child, BeautifulSoup.element.NavigableString):
                         if len(child.text.strip()):
                             child.replace_with(convert_to_bionic_str(soup, child.text))
     return str(soup).encode()

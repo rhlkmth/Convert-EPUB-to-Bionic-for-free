@@ -6,10 +6,9 @@ from ebooklib import epub
 from tqdm import tqdm
 from pathlib import Path
 
-# ... (the rest of your code remains the same) ...
 def _convert_file_path(path):
     path_obj = Path(path)
-    new_name = "converted-" + path_obj.stem + ".epub"  # Change this line
+    new_name = "converted-" + path_obj.stem + ".epub"
     new_path = path_obj.with_name(new_name)
     return str(new_path)
 
@@ -17,7 +16,7 @@ def convert_to_bionic_str(soup: BeautifulSoup, s: str):
     new_parent = soup.new_tag("span")
     words = re.split(r'.,;:!?-|\s', s)
     for word in words:
-        if len(word) >= 4:  # Increase frequency by bolding words with length >= 4
+        if len(word) >= 4:
             mid = (len(word) // 2) + 1
             first_half, second_half = word[:mid], word[mid:]
             b_tag = soup.new_tag("b")
@@ -31,11 +30,11 @@ def convert_to_bionic_str(soup: BeautifulSoup, s: str):
 def convert_to_bionic(content: str):
     soup = BeautifulSoup(content, 'html.parser')
     for e in soup.descendants:
-        if isinstance(e, BeautifulSoup.element.Tag):
-            if e.name == "p":  # Process all paragraphs
+        if isinstance(e, BeautifulSoup.Tag):  # Change this line
+            if e.name == "p":
                 children = list(e.children)
                 for child in children:
-                    if isinstance(child, BeautifulSoup.element.NavigableString):
+                    if isinstance(child, BeautifulSoup.NavigableString):
                         if len(child.text.strip()):
                             child.replace_with(convert_to_bionic_str(soup, child.text))
     return str(soup).encode()

@@ -5,7 +5,7 @@ import re
 from ebooklib import epub
 from tqdm import tqdm
 from pathlib import Path
-import bs4  # Add this import
+import bs4
 
 def _convert_file_path(path):
     path_obj = Path(path)
@@ -31,11 +31,11 @@ def convert_to_bionic_str(soup: BeautifulSoup, s: str):
 def convert_to_bionic(content: str):
     soup = BeautifulSoup(content, 'html.parser')
     for e in soup.descendants:
-        if isinstance(e, bs4.element.Tag):  # Change this line
+        if isinstance(e, bs4.element.Tag):
             if e.name == "p":
                 children = list(e.children)
                 for child in children:
-                    if isinstance(child, bs4.element.NavigableString):  # Change this line
+                    if isinstance(child, bs4.element.NavigableString):
                         if len(child.text.strip()):
                             child.replace_with(convert_to_bionic_str(soup, child.text))
     return str(soup).encode()
@@ -46,7 +46,9 @@ def convert_book(book_path):
         if item.media_type == "application/xhtml+xml":
             content = item.content.decode('utf-8')
             item.content = convert_to_bionic(content)
-    epub.write_epub(_convert_file_path(book_path), source)
+    converted_path = _convert_file_path(book_path)
+    epub.write_epub(converted_path, source)
+    return converted_path
 
 def main():
     st.title("Book Conversion")
@@ -57,9 +59,15 @@ def main():
             tmp_file.write(book_path.read())
             tmp_file_path = tmp_file.name
 
-        convert_book(tmp_file_path)
-        converted_path = _convert_file_path(tmp_file_path)
-        st.success(f"Book converted successfully! Downloaded {converted_path}")
+        converted_path = convert_book(tmp_file_path)
+        with open(converted_path, "rb") as f:
+            bytes_data = f.read()
+        st.download_button(
+            label="Download Converted Book",
+            data=bytes_data,
+            file_name=Path(converted_path).name,
+            mime="application/epub+zip"
+        )
 
 if __name__ == "__main__":
     main()

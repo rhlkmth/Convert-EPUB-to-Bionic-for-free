@@ -80,10 +80,13 @@ def main():
         if 'converted_name' in st.session_state:
             del st.session_state.converted_name
 
-        with st.spinner("Processing the file..."):
-            st.session_state.converted_data, st.session_state.converted_name = convert_book(tmp_file_path, original_name)
-        st.success("Conversion completed!")
-        
+        # Perform the conversion only if the converted data is not already in the session state
+        if 'converted_data' not in st.session_state:
+            with st.spinner("Processing the file..."):
+                st.session_state.converted_data, st.session_state.converted_name = convert_book(tmp_file_path, original_name)
+            st.success("Conversion completed!")
+
+        # Display the download button using the converted data from the session state
         converted_data = st.session_state.converted_data
         converted_name = st.session_state.converted_name
         st.download_button(

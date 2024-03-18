@@ -52,7 +52,7 @@ def convert_book(book_path, original_name):
     return converted_path
 
 def main():
-    st.title("Convert your book to Bionic")
+    st.title("Convert your EPUB to Bionic")
     book_path = st.file_uploader("Upload a book file", type=["epub"])
 
     if book_path is not None:

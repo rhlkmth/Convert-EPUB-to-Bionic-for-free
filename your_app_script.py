@@ -1,16 +1,16 @@
 import streamlit as st
 import tempfile
 import re
-from ebooklib import epub
 from tqdm import tqdm
 from pathlib import Path
 import subprocess
 
-# Install beautifulsoup4 package
-subprocess.run(["pip", "install", "beautifulsoup4"])
+# Install beautifulsoup4 and ebooklib packages
+subprocess.run(["pip", "install", "beautifulsoup4", "ebooklib"])
 
 from bs4 import BeautifulSoup
 import bs4
+from ebooklib import epub
 
 def _convert_file_path(path, original_name):
     path_obj = Path(path)

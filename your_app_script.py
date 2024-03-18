@@ -5,6 +5,7 @@ import re
 from ebooklib import epub
 from tqdm import tqdm
 from pathlib import Path
+import bs4  # Add this import
 
 def _convert_file_path(path):
     path_obj = Path(path)
@@ -30,11 +31,11 @@ def convert_to_bionic_str(soup: BeautifulSoup, s: str):
 def convert_to_bionic(content: str):
     soup = BeautifulSoup(content, 'html.parser')
     for e in soup.descendants:
-        if isinstance(e, BeautifulSoup.Tag):  # Change this line
+        if isinstance(e, bs4.element.Tag):  # Change this line
             if e.name == "p":
                 children = list(e.children)
                 for child in children:
-                    if isinstance(child, BeautifulSoup.NavigableString):
+                    if isinstance(child, bs4.element.NavigableString):  # Change this line
                         if len(child.text.strip()):
                             child.replace_with(convert_to_bionic_str(soup, child.text))
     return str(soup).encode()

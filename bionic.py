@@ -58,7 +58,11 @@ def convert_book(book_path, original_name):
     
     converted_path = _convert_file_path(book_path, original_name)
     epub.write_epub(converted_path, source)
-    return converted_path
+    
+    with open(converted_path, "rb") as f:
+        converted_data = f.read()
+    
+    return converted_data, Path(converted_path).name
 
 def main():
     st.title("Convert your EPUB to Bionic")
@@ -70,22 +74,19 @@ def main():
             tmp_file.write(book_path.read())
             tmp_file_path = tmp_file.name
 
-        with st.spinner("Processing the file..."):
-            converted_path = convert_book(tmp_file_path, original_name)
-        st.success("Conversion completed!")
+        if 'converted_data' not in st.session_state:
+            with st.spinner("Processing the file..."):
+                st.session_state.converted_data, st.session_state.converted_name = convert_book(tmp_file_path, original_name)
+            st.success("Conversion completed!")
         
-        with open(converted_path, "rb") as f:
-            bytes_data = f.read()
+        converted_data = st.session_state.converted_data
+        converted_name = st.session_state.converted_name
         st.download_button(
             label="Download Converted Book",
-            data=bytes_data,
-            file_name=Path(converted_path).name,
+            data=converted_data,
+            file_name=converted_name,
             mime="application/epub+zip"
         )
-        
-        # Clear the converted_path from the session state
-        if 'converted_path' in st.session_state:
-            del st.session_state.converted_path
 
 if __name__ == "__main__":
     main()

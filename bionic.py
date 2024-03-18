@@ -74,6 +74,11 @@ def main():
             tmp_file.write(book_path.read())
             tmp_file_path = tmp_file.name
 
+        # Check if the uploaded book is different from the previous one
+        if 'original_name' not in st.session_state or st.session_state.original_name != original_name:
+            # Clear the session state if the book is different
+            st.session_state.clear()
+
         # Perform the conversion only if the converted data is not already in the session state
         if 'converted_data' not in st.session_state:
             with st.spinner("Processing the file..."):
@@ -89,6 +94,9 @@ def main():
             file_name=converted_name,
             mime="application/epub+zip"
         )
+
+        # Store the original name of the uploaded book in the session state
+        st.session_state.original_name = original_name
 
 if __name__ == "__main__":
     main()

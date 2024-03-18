@@ -1,6 +1,5 @@
 import streamlit as st
 import tempfile
-import beautifulsoup4 from BeautifulSoup
 import beautifulsoup4 as bs4
 import re
 from ebooklib import epub

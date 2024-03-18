@@ -74,12 +74,6 @@ def main():
             tmp_file.write(book_path.read())
             tmp_file_path = tmp_file.name
 
-        # Clear the previous converted data and name from the session state
-        if 'converted_data' in st.session_state:
-            del st.session_state.converted_data
-        if 'converted_name' in st.session_state:
-            del st.session_state.converted_name
-
         # Perform the conversion only if the converted data is not already in the session state
         if 'converted_data' not in st.session_state:
             with st.spinner("Processing the file..."):

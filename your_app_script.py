@@ -1,12 +1,13 @@
 import streamlit as st
 import tempfile
 from beautifulsoup4 import BeautifulSoup
-import bs4
+import beautifulsoup4 as bs4
 import re
 from ebooklib import epub
 from tqdm import tqdm
 from pathlib import Path
 
+# ... (the rest of your code remains the same) ...
 def _convert_file_path(path):
     path_obj = Path(path)
     new_name = "converted-" + path_obj.stem + ".epub"  # Change this line

@@ -70,12 +70,10 @@ def main():
             tmp_file.write(book_path.read())
             tmp_file_path = tmp_file.name
 
-        if 'converted_path' not in st.session_state:
-            with st.spinner("Processing the file..."):
-                st.session_state.converted_path = convert_book(tmp_file_path, original_name)
-            st.success("Conversion completed!")
+        with st.spinner("Processing the file..."):
+            converted_path = convert_book(tmp_file_path, original_name)
+        st.success("Conversion completed!")
         
-        converted_path = st.session_state.converted_path
         with open(converted_path, "rb") as f:
             bytes_data = f.read()
         st.download_button(
@@ -84,6 +82,10 @@ def main():
             file_name=Path(converted_path).name,
             mime="application/epub+zip"
         )
+        
+        # Clear the converted_path from the session state
+        if 'converted_path' in st.session_state:
+            del st.session_state.converted_path
 
 if __name__ == "__main__":
     main()

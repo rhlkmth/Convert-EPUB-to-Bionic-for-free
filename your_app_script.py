@@ -1,8 +1,7 @@
 import streamlit as st
 import tempfile
-from beautifulsoup import BeautifulSoup
-import beautifulsoup as bs4
-from bs4 import BeautifulSoup
+from beautifulsoup4 import BeautifulSoup
+import beautifulsoup4 as bs4
 import re
 from ebooklib import epub
 from tqdm import tqdm
